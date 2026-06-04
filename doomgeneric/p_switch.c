@@ -123,6 +123,7 @@ void P_InitSwitchList(void)
 		
 	if (alphSwitchList[i].episode <= episode)
 	{
+
 #if 0	// UNUSED - debug?
 	    int		value;
 			

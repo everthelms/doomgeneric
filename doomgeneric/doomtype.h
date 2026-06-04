@@ -27,8 +27,13 @@
 
 #ifdef _WIN32
 
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
+// Use our own bare-metal implementations instead of importing from msvcrt.
+// _stricmp/_strnicmp are declared __declspec(dllimport) in MinGW headers,
+// which routes calls through a zero import thunk on bare metal.
+int doom_stricmp(const char *a, const char *b);
+int doom_strnicmp(const char *a, const char *b, unsigned long long n);
+#define strcasecmp  doom_stricmp
+#define strncasecmp doom_strnicmp
 
 #else
 

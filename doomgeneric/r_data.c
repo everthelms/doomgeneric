@@ -747,13 +747,13 @@ int	R_CheckTextureNumForName (char *name)
     int key;
 
     // "NoTexture" marker.
-    if (name[0] == '-')		
+    if (name[0] == '-')
 	return 0;
-		
+
     key = W_LumpNameHash(name) % numtextures;
 
-    texture=textures_hashtable[key]; 
-    
+    texture=textures_hashtable[key];
+
     while (texture != NULL)
     {
 	if (!strncasecmp (texture->name, name, 8) )

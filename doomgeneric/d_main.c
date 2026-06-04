@@ -577,12 +577,14 @@ void D_DoAdvanceDemo (void)
 	break;
     }
 
-    // The Doom 3: BFG Edition version of doom2.wad does not have a
-    // TITLETPIC lump. Use INTERPIC instead as a workaround.
-    if (bfgedition && !strcasecmp(pagename, "TITLEPIC")
-        && W_CheckNumForName("titlepic") < 0)
+    // BFG Edition: doom2.wad has no TITLEPIC; doom.wad has a 426-wide one.
+    // DMENUPIC (320x200) exists in both BFG IWADs and is a safe replacement.
+    if (bfgedition && !strcasecmp(pagename, "TITLEPIC"))
     {
-        pagename = DEH_String("INTERPIC");
+        if (W_CheckNumForName("dmenupic") >= 0)
+            pagename = DEH_String("DMENUPIC");
+        else
+            pagename = DEH_String("INTERPIC");
     }
 }
 

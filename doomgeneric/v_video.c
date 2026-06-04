@@ -156,22 +156,26 @@ void V_DrawPatch(int x, int y, patch_t *patch)
             return;
     }
 
-#ifdef RANGECHECK
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
+    // BFG Edition widescreen patches are wider than SCREENWIDTH and centered.
+    // Shift x so we draw the middle SCREENWIDTH columns rather than the left edge.
+    if (SHORT(patch->width) > SCREENWIDTH)
+        x -= (SHORT(patch->width) - SCREENWIDTH) / 2;
+
+    // Silently clip instead of crashing if patch still exceeds screen bounds.
     {
-        I_Error("Bad V_DrawPatch x=%i y=%i patch.width=%i patch.height=%i topoffset=%i leftoffset=%i", x, y, patch->width, patch->height, patch->topoffset, patch->leftoffset);
+        int x1 = x + SHORT(patch->width), y1 = y + SHORT(patch->height);
+        if (x >= SCREENWIDTH || x1 <= 0 || y >= SCREENHEIGHT || y1 <= 0)
+            return;
     }
-#endif
 
     V_MarkRect(x, y, SHORT(patch->width), SHORT(patch->height));
 
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
     w = SHORT(patch->width);
+    col = (x < 0) ? -x : 0;
+    if (x < 0) x = 0;
+    if (x + (w - col) > SCREENWIDTH) w = col + SCREENWIDTH - x;
+
+    desttop = dest_screen + y * SCREENWIDTH + x;
 
     for ( ; col<w ; x++, col++, desttop++)
     {
@@ -220,26 +224,28 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
             return;
     }
 
-#ifdef RANGECHECK 
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
+    if (SHORT(patch->width) > SCREENWIDTH)
+        x -= (SHORT(patch->width) - SCREENWIDTH) / 2;
+
     {
-        I_Error("Bad V_DrawPatchFlipped");
+        int x1 = x + SHORT(patch->width), y1 = y + SHORT(patch->height);
+        if (x >= SCREENWIDTH || x1 <= 0 || y >= SCREENHEIGHT || y1 <= 0)
+            return;
     }
-#endif
 
     V_MarkRect (x, y, SHORT(patch->width), SHORT(patch->height));
 
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
     w = SHORT(patch->width);
+    col = (x < 0) ? -x : 0;
+    if (x < 0) x = 0;
+    if (x + (w - col) > SCREENWIDTH) w = col + SCREENWIDTH - x;
+
+    desttop = dest_screen + y * SCREENWIDTH + x;
 
     for ( ; col<w ; x++, col++, desttop++)
     {
-        column = (column_t *)((byte *)patch + LONG(patch->columnofs[w-1-col]));
+        int patch_col = SHORT(patch->width) - 1 - col;
+        column = (column_t *)((byte *)patch + LONG(patch->columnofs[patch_col]));
 
         // step through the posts in a column
         while (column->topdelta != 0xff )
