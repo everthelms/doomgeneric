@@ -2042,10 +2042,10 @@ float M_GetFloatVariable(char *name)
 
 static char *GetDefaultConfigDir(void)
 {
-    char *result = (char *)malloc(2);
-    result[0] = '.';
-    result[1] = '\0';
-
+    // Flat fat32 (root only): use the root, so saves/config are bare filenames with no
+    // subdirectory. (A "." here makes DOOM build a ".savegame/" path the driver can't use.)
+    char *result = (char *)malloc(1);
+    result[0] = '\0';
     return result;
 }
 
